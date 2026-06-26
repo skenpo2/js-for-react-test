@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Are you React-ready? — JavaScript Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1116;
+    --surface:#171B22;
+    --surface-2:#1E232C;
+    --border:#262C36;
+    --text:#E6E9EF;
+    --muted:#8B93A1;
+    --js:#F7DF1E;
+    --react:#61DAFB;
+    --green:#3FB950;
+    --red:#F85149;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --sans:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+  .wrap{
+    max-width:620px;
+    margin:0 auto;
+    padding:0 18px 40px;
+    min-height:100%;
+  }
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  button:focus-visible, .opt:focus-visible{outline:2px solid var(--react);outline-offset:2px;}
+
+  /* ---------- START SCREEN ---------- */
+  .start{padding-top:54px;}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);
+    border:1px solid var(--border);border-radius:999px;
+    padding:6px 14px;margin-bottom:26px;
+  }
+  .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--js);}
+  .journey{font-family:var(--mono);font-weight:800;}
+  .journey .y{color:var(--js);} .journey .c{color:var(--react);} .journey .a{color:var(--muted);}
+  h1{
+    font-family:var(--mono);font-weight:800;font-size:40px;line-height:1.05;
+    letter-spacing:-0.02em;margin-bottom:18px;
+  }
+  h1 .lead{color:var(--react);}
+  .sub{color:var(--muted);font-size:16px;margin-bottom:30px;max-width:46ch;}
+  .meta{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:30px;
+  }
+  .meta .cell{
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    padding:14px 12px;text-align:center;
+  }
+  .meta .n{font-family:var(--mono);font-weight:800;font-size:22px;}
+  .meta .n.js{color:var(--js);} .meta .n.rc{color:var(--react);}
+  .meta .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+  .topics{
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    padding:16px 18px;margin-bottom:28px;
+  }
+  .topics h3{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font-family:var(--mono);font-size:12px;background:var(--surface-2);border:1px solid var(--border);
+    border-radius:8px;padding:5px 9px;color:var(--text);}
+
+  .btn-primary{
+    width:100%;background:var(--js);color:#0E1116;font-family:var(--mono);font-weight:800;
+    font-size:17px;letter-spacing:.01em;padding:17px;border-radius:14px;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(247,223,30,.18);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-ghost{
+    border:1px solid var(--border);background:var(--surface);color:var(--text);
+    font-family:var(--mono);font-weight:600;font-size:15px;padding:14px;border-radius:12px;flex:1;
+    transition:border-color .12s,background .12s;
+  }
+  .btn-ghost:hover{border-color:var(--muted);}
+  .btn-ghost:disabled{opacity:.35;cursor:not-allowed;}
+  .fine{font-size:13px;color:var(--muted);text-align:center;margin-top:16px;}
+
+  /* ---------- QUIZ SCREEN ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:20;background:rgba(14,17,22,.86);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    padding:14px 0 12px;margin:0 -18px;
+    border-bottom:1px solid var(--border);
+  }
+  .topbar .row{display:flex;align-items:center;justify-content:space-between;padding:0 18px;}
+  .qcount{font-family:var(--mono);font-size:13px;color:var(--muted);}
+  .qcount b{color:var(--text);}
+  .timer{
+    font-family:var(--mono);font-weight:800;font-size:18px;letter-spacing:.02em;
+    display:flex;align-items:center;gap:7px;
+  }
+  .timer .clk{width:9px;height:9px;border-radius:50%;background:var(--react);}
+  .timer.warn{color:var(--js);} .timer.warn .clk{background:var(--js);}
+  .timer.danger{color:var(--red);animation:pulse 1s infinite;} .timer.danger .clk{background:var(--red);}
+  @keyframes pulse{50%{opacity:.45;}}
+  .bar{height:7px;background:var(--surface-2);border-radius:999px;overflow:hidden;margin:11px 18px 0;position:relative;}
+  .bar-fill{height:100%;width:0;border-radius:999px;transition:width .35s cubic-bezier(.2,.7,.2,1);}
+
+  .qcard{padding-top:24px;}
+  .eyebrow{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--react);margin-bottom:12px;}
+  .qtext{font-size:19px;font-weight:600;line-height:1.45;margin-bottom:16px;}
+  pre.code{
+    background:#0A0D12;border:1px solid var(--border);border-left:3px solid var(--js);
+    border-radius:10px;padding:14px 16px;margin-bottom:18px;overflow-x:auto;
+    font-family:var(--mono);font-size:13.5px;line-height:1.6;color:#D7DEE8;
+  }
+  .opts{display:flex;flex-direction:column;gap:11px;}
+  .opt{
+    display:flex;align-items:flex-start;gap:12px;text-align:left;
+    background:var(--surface);border:1px solid var(--border);border-radius:13px;
+    padding:15px 16px;font-size:15.5px;color:var(--text);
+    transition:border-color .12s,background .12s,transform .08s;
+  }
+  .opt:hover{border-color:var(--muted);}
+  .opt:active{transform:scale(.99);}
+  .opt .key{
+    font-family:var(--mono);font-weight:700;font-size:13px;color:var(--muted);
+    border:1px solid var(--border);border-radius:7px;min-width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+  }
+  .opt.sel{border-color:var(--react);background:rgba(97,218,251,.08);}
+  .opt.sel .key{border-color:var(--react);color:var(--react);background:rgba(97,218,251,.12);}
+  .opt code, pre.code{font-family:var(--mono);}
+  .opt .txt code{background:var(--surface-2);padding:1px 5px;border-radius:5px;font-size:13px;}
+
+  .navrow{display:flex;gap:11px;margin-top:26px;}
+  .submitbar{margin-top:14px;}
+  .btn-submit{
+    width:100%;background:transparent;border:1px solid var(--react);color:var(--react);
+    font-family:var(--mono);font-weight:700;font-size:15px;padding:14px;border-radius:12px;
+    transition:background .12s;
+  }
+  .btn-submit:hover{background:rgba(97,218,251,.08);}
+
+  /* navigator grid */
+  .navtoggle{
+    width:100%;margin-top:14px;text-align:center;font-family:var(--mono);font-size:12.5px;
+    color:var(--muted);padding:10px;border:1px dashed var(--border);border-radius:10px;
+  }
+  .navgrid{
+    display:none;grid-template-columns:repeat(10,1fr);gap:7px;margin-top:12px;
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;
+  }
+  .navgrid.open{display:grid;}
+  .navgrid button{
+    aspect-ratio:1;border-radius:7px;font-family:var(--mono);font-size:12px;font-weight:600;
+    background:var(--surface-2);color:var(--muted);border:1px solid transparent;
+  }
+  .navgrid button.done{color:var(--text);border-color:var(--js);}
+  .navgrid button.current{background:var(--react);color:#0E1116;}
+
+  /* ---------- RESULTS ---------- */
+  .results{padding-top:40px;}
+  .verdict{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.1em;
+    text-transform:uppercase;margin-bottom:14px;}
+  .scorebig{font-family:var(--mono);font-weight:800;font-size:64px;line-height:1;letter-spacing:-0.02em;}
+  .scorebig .of{color:var(--muted);font-size:30px;}
+  .scoreline{color:var(--muted);margin:10px 0 24px;font-size:15px;}
+  .ring-wrap{display:flex;align-items:center;gap:22px;margin-bottom:26px;}
+  .ring{flex-shrink:0;}
+  .summary{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:28px;
+  }
+  .summary .cell{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px 10px;text-align:center;}
+  .summary .n{font-family:var(--mono);font-weight:800;font-size:22px;}
+  .summary .n.ok{color:var(--green);} .summary .n.bad{color:var(--red);} .summary .n.sk{color:var(--muted);}
+  .summary .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px;}
+
+  .bytopic{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:28px;}
+  .bytopic h3{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+  .trow{display:flex;align-items:center;gap:10px;margin-bottom:11px;font-size:13px;}
+  .trow .tname{width:118px;flex-shrink:0;color:var(--text);}
+  .trow .tbar{flex:1;height:7px;background:var(--surface-2);border-radius:999px;overflow:hidden;}
+  .trow .tbar span{display:block;height:100%;background:linear-gradient(90deg,var(--js),var(--react));border-radius:999px;}
+  .trow .tscore{font-family:var(--mono);font-size:12px;color:var(--muted);width:42px;text-align:right;flex-shrink:0;}
+
+  .review h3{font-family:var(--mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+  .ritem{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:15px 16px;margin-bottom:12px;}
+  .ritem .rq{font-size:15px;font-weight:600;margin-bottom:6px;}
+  .ritem .ri-head{display:flex;gap:9px;align-items:baseline;margin-bottom:8px;}
+  .ritem .ri-num{font-family:var(--mono);font-size:12px;color:var(--muted);flex-shrink:0;}
+  .ritem pre.code{font-size:12.5px;margin-bottom:12px;}
+  .ans{font-family:var(--mono);font-size:13px;padding:8px 11px;border-radius:8px;margin-top:7px;display:flex;gap:8px;align-items:flex-start;}
+  .ans.correct{background:rgba(63,185,80,.1);color:#7EE08C;}
+  .ans.wrong{background:rgba(248,81,73,.1);color:#F89690;}
+  .ans .mark{font-weight:700;flex-shrink:0;}
+  .exp{font-size:13.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+  .exp b{color:var(--text);font-weight:600;}
+  .restart{margin-top:8px;}
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;z-index:50;
+    background:rgba(8,10,14,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+    align-items:center;justify-content:center;padding:24px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);
+    border-radius:18px;padding:24px;animation:pop .16s ease;
+  }
+  @keyframes pop{from{transform:scale(.94);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .modal-title{font-family:var(--mono);font-weight:800;font-size:20px;margin-bottom:10px;}
+  .modal-body{color:var(--muted);font-size:15px;margin-bottom:22px;}
+  .modal-body b{color:var(--js);font-family:var(--mono);}
+  .modal-actions{display:flex;gap:11px;}
+  .modal-actions .btn-ghost{flex:1;}
+  .modal-confirm{flex:1;width:auto;padding:14px;font-size:15px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important;}
+  }
+  @media(min-width:480px){
+    h1{font-size:46px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- START -->
+  <section id="start" class="start">
+    <span class="badge"><span class="dot"></span> JavaScript readiness check</span>
+    <h1>Are you <span class="lead">React-ready?</span></h1>
+    <p class="sub">100 questions across the core JavaScript you need before stepping into React. Pace yourself — the timer runs the whole way.</p>
+
+    <div class="meta">
+      <div class="cell"><div class="n">100</div><div class="l">Questions</div></div>
+      <div class="cell"><div class="n js">45:00</div><div class="l">Minutes</div></div>
+      <div class="cell"><div class="n rc">14</div><div class="l">Topics</div></div>
+    </div>
+
+    <div class="topics">
+      <h3>What's covered</h3>
+      <div class="chips">
+        <span class="chip">Variables</span><span class="chip">Functions</span><span class="chip">Arrays</span>
+        <span class="chip">Objects</span><span class="chip">Destructuring</span><span class="chip">Spread / Rest</span>
+        <span class="chip">Template literals</span><span class="chip">Modules</span><span class="chip">Promises</span>
+        <span class="chip">Async / await</span><span class="chip">DOM</span><span class="chip">Events</span>
+        <span class="chip">Higher-order fns</span><span class="chip">Closures</span>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="startQuiz()">Start quiz</button>
+    <p class="fine">Multiple choice · submit anytime · answers revealed at the end</p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" style="display:none;">
+    <div class="topbar">
+      <div class="row">
+        <div class="qcount">Question <b id="qNow">1</b> / 100</div>
+        <div class="timer" id="timer"><span class="clk"></span><span id="timeText">45:00</span></div>
+      </div>
+      <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+    </div>
+
+    <div class="qcard">
+      <div class="eyebrow" id="qTopic"></div>
+      <div class="qtext" id="qText"></div>
+      <pre class="code" id="qCode" style="display:none;"></pre>
+      <div class="opts" id="qOpts"></div>
+
+      <div class="navrow">
+        <button class="btn-ghost" id="prevBtn" onclick="go(-1)">← Back</button>
+        <button class="btn-ghost" id="nextBtn" onclick="go(1)">Next →</button>
+      </div>
+      <div class="submitbar">
+        <button class="btn-submit" onclick="confirmSubmit()">Submit quiz</button>
+      </div>
+
+      <button class="navtoggle" onclick="toggleNav()" id="navToggle">Jump to question ▾</button>
+      <div class="navgrid" id="navGrid"></div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="results" style="display:none;">
+    <div class="verdict" id="verdict"></div>
+    <div class="ring-wrap">
+      <svg class="ring" width="92" height="92" viewBox="0 0 92 92">
+        <circle cx="46" cy="46" r="40" fill="none" stroke="var(--surface-2)" stroke-width="9"/>
+        <circle id="ringFill" cx="46" cy="46" r="40" fill="none" stroke="url(#grad)" stroke-width="9"
+          stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"
+          transform="rotate(-90 46 46)"/>
+        <defs><linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#F7DF1E"/><stop offset="100%" stop-color="#61DAFB"/>
+        </linearGradient></defs>
+      </svg>
+      <div>
+        <div class="scorebig"><span id="scoreNum">0</span><span class="of"> / 100</span></div>
+        <div class="scoreline" id="scoreSub"></div>
+      </div>
+    </div>
+
+    <div class="summary">
+      <div class="cell"><div class="n ok" id="cCorrect">0</div><div class="l">Correct</div></div>
+      <div class="cell"><div class="n bad" id="cWrong">0</div><div class="l">Wrong</div></div>
+      <div class="cell"><div class="n sk" id="cSkip">0</div><div class="l">Skipped</div></div>
+    </div>
+
+    <div class="bytopic">
+      <h3>Score by topic</h3>
+      <div id="topicRows"></div>
+    </div>
+
+    <div class="review">
+      <h3>Review your answers</h3>
+      <div id="reviewList"></div>
+    </div>
+
+    <button class="btn-primary restart" onclick="location.reload()">Take it again</button>
+  </section>
+
+  <!-- CONFIRM MODAL -->
+  <div id="modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-title">Submit your quiz?</div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="closeModal()">Keep going</button>
+        <button class="btn-primary modal-confirm" onclick="finish(false)">Submit now</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ---------------- QUESTION BANK (100) ---------------- */
+const QUESTIONS = [
+// Fundamentals
+{t:"Fundamentals",q:"Which keyword declares a variable that cannot be reassigned?",o:["var","let","const","static"],a:2,e:"<b>const</b> creates a binding that can't be reassigned (though objects/arrays it points to can still be mutated)."},
+{t:"Fundamentals",q:"What does <code>typeof null</code> return?",o:['"null"','"object"','"undefined"','"number"'],a:1,e:"A famous JS quirk: <b>typeof null</b> is <b>\"object\"</b>, a bug kept for backwards compatibility."},
+{t:"Fundamentals",q:"What does <code>typeof \"hello\"</code> return?",o:['"string"','"String"','"text"','"char"'],a:0,e:"Strings report as <b>\"string\"</b>."},
+{t:"Fundamentals",q:"Which of these is NOT a JavaScript primitive type?",o:["String","Boolean","Array","Number"],a:2,e:"<b>Array</b> is an object. Primitives are string, number, boolean, null, undefined, symbol, bigint."},
+{t:"Fundamentals",q:"What can <code>let</code> do that <code>const</code> cannot?",o:["Block scoping","Hoisting","Be reassigned","Type checking"],a:2,e:"<b>let</b> variables can be reassigned; <b>const</b> bindings cannot."},
+{t:"Fundamentals",q:"What is the result of <code>10 === \"10\"</code>?",o:["true","false","Error","\"10\""],a:1,e:"<b>===</b> is strict equality — it checks value AND type, so number vs string is <b>false</b>."},
+{t:"Fundamentals",q:"What is the result of <code>10 == \"10\"</code>?",o:["true","false","Error","NaN"],a:0,e:"<b>==</b> performs type coercion, so the string is converted to a number and it's <b>true</b>."},
+{t:"Fundamentals",q:"What is the value of <code>x</code> after <code>let x;</code>?",o:["null","0","undefined","NaN"],a:2,e:"A declared but unassigned variable holds <b>undefined</b>."},
+{t:"Fundamentals",q:"Which operator returns the remainder of a division?",o:["/","%","//","*"],a:1,e:"The modulo operator <b>%</b> returns the remainder."},
+{t:"Fundamentals",q:"What does this evaluate to?",code:"let x = 5;\nx > 3 ? \"big\" : \"small\";",o:['"big"','"small"',"true","Error"],a:0,e:"The ternary returns the first value when the condition is true, so <b>\"big\"</b>."},
+{t:"Fundamentals",q:"Which loop is built to iterate the VALUES of an array directly?",o:["for...in","for...of","while","do...while"],a:1,e:"<b>for...of</b> loops over values; <b>for...in</b> loops over keys/indexes."},
+{t:"Fundamentals",q:"What does <code>for...in</code> iterate over?",o:["Values","Keys / property names","Entries","Length"],a:1,e:"<b>for...in</b> gives you the keys (or indexes), not the values."},
+{t:"Fundamentals",q:"What is <code>Boolean(\"\")</code>?",o:["true","false",'""',"undefined"],a:1,e:"An empty string is falsy, so it becomes <b>false</b>."},
+{t:"Fundamentals",q:"Which of these values is falsy?",o:['"0"',"[]","{}","0"],a:3,e:"The falsy values are <b>0, \"\", null, undefined, NaN, false</b>. \"0\", [] and {} are all truthy."},
+{t:"Fundamentals",q:"What is the value of <code>a</code> after this?",code:"let a = 5;\na += 3;",o:["5","3","8","53"],a:2,e:"<b>+=</b> adds and reassigns, so 5 + 3 = <b>8</b>."},
+
+// Functions
+{t:"Functions",q:"Which of these is a valid arrow function?",o:["function f() {}","const f = () => {}","def f(): {}","f := () {}"],a:1,e:"Arrow syntax is <b>const f = () => {}</b>."},
+{t:"Functions",q:"What does <code>double(4)</code> return?",code:"const double = n => n * 2;",o:["8","undefined",'"n*2"',"Error"],a:0,e:"A single-expression arrow function returns it implicitly, so <b>8</b>."},
+{t:"Functions",q:"Function declarations are…",o:["Not hoisted","Hoisted","Block-scoped only","Always async"],a:1,e:"<b>Function declarations are hoisted</b> — you can call them before their definition in the file."},
+{t:"Functions",q:"A function passed as an argument to another function is called a…",o:["Closure","Callback","Promise","Generator"],a:1,e:"That's a <b>callback</b> function."},
+{t:"Functions",q:"What does a function return if it has no <code>return</code> statement?",o:["null","0","undefined",'""'],a:2,e:"With no explicit return, a function returns <b>undefined</b>."},
+{t:"Functions",q:"What does <code>greet(\"Sam\")</code> return?",code:"const greet = (name) => `Hi ${name}`;",o:['"Hi name"','"Hi Sam"','"Hi ${name}"',"Error"],a:1,e:"The template literal injects the argument, giving <b>\"Hi Sam\"</b>."},
+{t:"Functions",q:"Which can be called BEFORE it appears in the code?",o:["Function expression","Function declaration","Both","Neither"],a:1,e:"Only <b>declarations</b> are fully hoisted; expressions are not available before their line runs."},
+{t:"Functions",q:"What does <code>f()</code> return?",code:"function f(x = 5) { return x; }",o:["undefined","5","0","Error"],a:1,e:"With no argument the default parameter <b>5</b> is used."},
+{t:"Functions",q:"What does <code>add(2)</code> return?",code:"const add = (a, b) => a + b;",o:["2","NaN","undefined","Error"],a:1,e:"<b>b</b> is undefined, and 2 + undefined is <b>NaN</b>."},
+{t:"Functions",q:"Arrow functions do NOT have their own…",o:["Parameters","this","Return value","Scope"],a:1,e:"Arrow functions don't bind their own <b>this</b> — they inherit it from where they're defined. This matters a lot in React."},
+
+// Arrays
+{t:"Arrays",q:"What is the result of <code>[1,2,3].map(n => n*2)</code>?",o:["[1,2,3]","[2,4,6]","6","[1,4,9]"],a:1,e:"<b>map</b> transforms each element, giving <b>[2,4,6]</b>."},
+{t:"Arrays",q:"What does <code>map()</code> return?",o:["It modifies the original","A new array","undefined","A number"],a:1,e:"<b>map</b> always returns a brand-new array and leaves the original untouched."},
+{t:"Arrays",q:"What is the result of <code>[1,2,3,4].filter(n => n > 2)</code>?",o:["[3,4]","[1,2]","true","2"],a:0,e:"<b>filter</b> keeps elements where the test is true, giving <b>[3,4]</b>."},
+{t:"Arrays",q:"What does <code>[1,2,3].find(n => n > 1)</code> return?",o:["[2,3]","2","true","1"],a:1,e:"<b>find</b> returns the first matching element itself, which is <b>2</b>."},
+{t:"Arrays",q:"What is the result of <code>[1,2,3].reduce((a,b) => a+b, 0)</code>?",o:["6","[1,2,3]","0","5"],a:0,e:"<b>reduce</b> accumulates: 0+1+2+3 = <b>6</b>."},
+{t:"Arrays",q:"What does <code>forEach()</code> return?",o:["A new array","undefined","The array","A boolean"],a:1,e:"<b>forEach</b> runs a function on each item but returns <b>undefined</b> — use map if you need a result."},
+{t:"Arrays",q:"What is the result of <code>[1,2,3].some(n => n > 2)</code>?",o:["true","false","[3]","1"],a:0,e:"<b>some</b> returns true if AT LEAST one element passes — 3 > 2, so <b>true</b>."},
+{t:"Arrays",q:"What is the result of <code>[1,2,3].every(n => n > 0)</code>?",o:["true","false","[1,2,3]","3"],a:0,e:"<b>every</b> returns true only if ALL elements pass — they all do, so <b>true</b>."},
+{t:"Arrays",q:"Which method do you use in React to turn a list of data into a list of elements?",o:["forEach","map","find","some"],a:1,e:"<b>map</b> is the standard way to render lists in React (and each item needs a key)."},
+{t:"Arrays",q:"What is the result of <code>[\"a\",\"b\"].map((x, i) => i)</code>?",o:['["a","b"]',"[0,1]","[1,2]","2"],a:1,e:"The second callback argument is the <b>index</b>, so you get <b>[0,1]</b>."},
+{t:"Arrays",q:"What does <code>[5,12,8].find(n => n > 10)</code> return?",o:["12","[12]","true","5"],a:0,e:"The first element greater than 10 is <b>12</b>."},
+{t:"Arrays",q:"What is the result of <code>[1,2,3,4].filter(n => n % 2 === 0)</code>?",o:["[1,3]","[2,4]","true","2"],a:1,e:"Keeps the even numbers: <b>[2,4]</b>."},
+
+// Objects
+{t:"Objects",q:"What does <code>u.name</code> return?",code:'const u = { name: "Al" };',o:["undefined",'"Al"',"name","Error"],a:1,e:"Dot notation reads the property, giving <b>\"Al\"</b>."},
+{t:"Objects",q:"Besides dot notation, the other way to access object properties is…",o:["Bracket notation","Arrow notation","Parentheses","Colon notation"],a:0,e:"You can use <b>bracket notation</b> like <b>u[\"name\"]</b>, useful for dynamic keys."},
+{t:"Objects",q:"What does this code do?",code:"const u = {};\nu.age = 30;",o:["Throws an error","Adds an age property","Deletes u","Nothing"],a:1,e:"It <b>adds a new property</b> age with value 30 to the object."},
+{t:"Objects",q:"What does <code>u.info.city</code> return?",code:'const u = { info: { city: "NY" } };',o:["undefined",'"NY"','{ city: "NY" }',"Error"],a:1,e:"You chain dots to reach nested values: <b>\"NY\"</b>."},
+{t:"Objects",q:"What does <code>Object.keys({a:1, b:2})</code> return?",o:["[1,2]",'["a","b"]',"2","{a,b}"],a:1,e:"<b>Object.keys</b> returns an array of the property names: <b>[\"a\",\"b\"]</b>."},
+{t:"Objects",q:"Which is the correct object property shorthand for <code>{ name: name }</code>?",o:["{ name }","{ name: }","{ :name }","{ name=name }"],a:0,e:"When the key and variable share a name, you can write just <b>{ name }</b>."},
+
+// Destructuring
+{t:"Destructuring",q:"What is the value of <code>name</code>?",code:'const { name } = { name: "Jo", age: 5 };',o:['"Jo"',"5","undefined","{ name }"],a:0,e:"Object destructuring pulls out the matching property: <b>\"Jo\"</b>."},
+{t:"Destructuring",q:"What is the value of <code>b</code>?",code:"const [a, b] = [10, 20];",o:["10","20","[10,20]","undefined"],a:1,e:"Array destructuring goes by position, so b is <b>20</b>."},
+{t:"Destructuring",q:"What is the value of <code>n</code>?",code:'const { name: n } = { name: "Al" };',o:['"Al"',"undefined","name","Error"],a:0,e:"<b>name: n</b> renames the extracted property to <b>n</b>, giving \"Al\"."},
+{t:"Destructuring",q:"What is the value of <code>x</code>?",code:"const { x = 5 } = {};",o:["undefined","5","0","{}"],a:1,e:"When the property is missing, the default value <b>5</b> is used."},
+{t:"Destructuring",q:"In <code>function Profile({ title }) {}</code>, where does <code>title</code> come from?",o:["State","The props object","Context","Global scope"],a:1,e:"It's destructured from the <b>props object</b> — the standard React pattern."},
+{t:"Destructuring",q:"What is the value of <code>second</code>?",code:"const [, second] = [1, 2, 3];",o:["1","2","3","undefined"],a:1,e:"The empty slot skips the first element, so second is <b>2</b>."},
+{t:"Destructuring",q:"What is <code>rest</code>?",code:"const [first, ...rest] = [1, 2, 3];",o:["[1]","[2,3]","3","1"],a:1,e:"The rest pattern collects the remaining items into an array: <b>[2,3]</b>."},
+{t:"Destructuring",q:"What is the value of <code>b</code>?",code:"const { a: { b } } = { a: { b: 7 } };",o:["7","{ b: 7 }","undefined","Error"],a:0,e:"Nested destructuring reaches the inner value <b>7</b>."},
+
+// Spread / Rest
+{t:"Spread / Rest",q:"What is the result?",code:"const arr = [1, 2];\n[...arr, 3];",o:["[1,2]","[1,2,3]","[[1,2],3]","Error"],a:1,e:"Spread expands the array's items, producing <b>[1,2,3]</b>."},
+{t:"Spread / Rest",q:"What does <code>{ ...user, age: 30 }</code> do?",o:["Deletes user","Copies user, then adds/overrides age","Throws an error","Nothing"],a:1,e:"It copies all of user's properties into a new object, then sets <b>age</b> — the pattern for updating state immutably."},
+{t:"Spread / Rest",q:"In <code>function f(...n) {}</code>, what is <code>n</code>?",o:["A string","An array of all arguments","An object","undefined"],a:1,e:"The rest parameter gathers every argument into an <b>array</b>."},
+{t:"Spread / Rest",q:"What does <code>Math.max(...[3, 7, 2])</code> return?",o:["7","[3,7,2]","3","Error"],a:0,e:"Spread passes the array items as separate arguments, so Math.max sees 3, 7, 2 → <b>7</b>."},
+{t:"Spread / Rest",q:"What is the result of <code>[...[1,2], ...[3,4]]</code>?",o:["[1,2,3,4]","[[1,2],[3,4]]","10","Error"],a:0,e:"Both arrays are spread into one: <b>[1,2,3,4]</b>."},
+{t:"Spread / Rest",q:"Which one uses <code>...</code> to COLLECT remaining items?",o:["Spread","Rest","Both equally","Neither"],a:1,e:"<b>Rest</b> collects items together; spread expands them apart. Same symbol, opposite jobs."},
+{t:"Spread / Rest",q:"What is the result of <code>b === a</code>?",code:"const a = { x: 1 };\nconst b = { ...a };",o:["true","false","Error","undefined"],a:1,e:"Spread creates a NEW (shallow) copy, so they're different objects — <b>false</b>."},
+{t:"Spread / Rest",q:"In React, the most common way to update state immutably uses…",o:["push()","The spread operator","splice()","delete"],a:1,e:"You build a new object/array with the <b>spread operator</b> rather than mutating the old one."},
+
+// Template literals
+{t:"Template literals",q:"Template literals are wrapped in which character?",o:["Single quote '","Double quote \"","Backtick `","Slash /"],a:2,e:"Template literals use <b>backticks</b> ( ` )."},
+{t:"Template literals",q:"What does this produce?",code:'const n = "Al";\n`Hi ${n}`;',o:['"Hi ${n}"','"Hi Al"','"Hi n"',"Error"],a:1,e:"The <b>${ }</b> placeholder is replaced with the variable's value: <b>\"Hi Al\"</b>."},
+{t:"Template literals",q:"Can template literals span multiple lines?",o:["Yes","No","Only with \\n","Only inside functions"],a:0,e:"<b>Yes</b> — line breaks inside backticks are preserved."},
+{t:"Template literals",q:"What can you place inside <code>${ }</code>?",o:["Only variables","Any JavaScript expression","Only strings","Nothing"],a:1,e:"You can put <b>any expression</b> — math, function calls, ternaries, and more."},
+
+// ES Modules
+{t:"ES Modules",q:"Given <code>export default App;</code>, how do you import it?",o:['import { App } from "./App"','import App from "./App"',"require App",'include "App"'],a:1,e:"A default export is imported with no braces: <b>import App from \"./App\"</b>."},
+{t:"ES Modules",q:"A NAMED export is imported using…",o:["Curly braces { }","Square brackets [ ]","No braces","Parentheses ( )"],a:0,e:"Named exports use <b>curly braces</b>, e.g. <b>import { useState } from \"react\"</b>."},
+{t:"ES Modules",q:"How many default exports can a single module have?",o:["One","Unlimited","Two","Zero"],a:0,e:"A module may have at most <b>one</b> default export (but many named exports)."},
+{t:"ES Modules",q:"In <code>import { useState } from \"react\"</code>, <code>useState</code> is a…",o:["Default export","Named export","Dynamic export","Global variable"],a:1,e:"The curly braces mean it's a <b>named export</b> from the react package."},
+{t:"ES Modules",q:"To expose MULTIPLE values from one file, you use…",o:["A default export","Named exports","Spread","require"],a:1,e:"You use multiple <b>named exports</b>."},
+{t:"ES Modules",q:"Which keyword renames an import?",o:["as","from","rename","alias"],a:0,e:"Use <b>as</b>: <b>import { useState as useS } from \"react\"</b>."},
+
+// Promises
+{t:"Promises",q:"A Promise represents…",o:["An array","An eventual (future) value","A loop","A string"],a:1,e:"A Promise is a placeholder for a value that will be available <b>later</b>."},
+{t:"Promises",q:"<code>.then()</code> runs when a promise is…",o:["Rejected","Resolved (fulfilled)","Pending","Created"],a:1,e:"<b>.then()</b> handles the success/<b>resolved</b> case."},
+{t:"Promises",q:"<code>.catch()</code> handles…",o:["Success","Errors (rejections)","Loading","Nothing"],a:1,e:"<b>.catch()</b> runs when a promise is <b>rejected</b> / throws an error."},
+{t:"Promises",q:"What does <code>fetch()</code> return?",o:["JSON","A Promise","An array","A string"],a:1,e:"<b>fetch</b> returns a <b>Promise</b> that resolves to a Response object."},
+{t:"Promises",q:"What are the three states of a promise?",o:["open / closed","pending / fulfilled / rejected","true / false","start / end"],a:1,e:"A promise is <b>pending</b>, then becomes <b>fulfilled</b> or <b>rejected</b>."},
+{t:"Promises",q:"In <code>fetch(url).then(res => res.json())</code>, what does <code>res.json()</code> return?",o:["The data directly","Another Promise","A string","undefined"],a:1,e:"<b>res.json()</b> also returns a Promise, which is why you chain another <b>.then()</b>."},
+{t:"Promises",q:"Which quickly creates an already-resolved promise?",o:["new Promise.ok()","Promise.resolve(value)","promise.done()","resolve()"],a:1,e:"<b>Promise.resolve(value)</b> returns a promise already fulfilled with that value."},
+
+// Async / await
+{t:"Async / await",q:"<code>await</code> can normally only be used inside…",o:["Any function","An async function","A loop","A class only"],a:1,e:"<b>await</b> requires an <b>async</b> function (top-level await also exists in modules)."},
+{t:"Async / await",q:"An <code>async</code> function always returns…",o:["undefined","A Promise","A string","The value directly"],a:1,e:"Whatever you return, an async function wraps it in a <b>Promise</b>."},
+{t:"Async / await",q:"What does <code>await fetch(url)</code> do?",o:["Cancels the fetch","Pauses until the promise resolves","Loops forever","Ignores errors"],a:1,e:"<b>await</b> pauses the async function until the promise settles, then gives you the result."},
+{t:"Async / await",q:"The common way to handle errors with async/await is…",o:[".catch() only","try / catch","if / else","switch"],a:1,e:"Wrap awaited calls in a <b>try / catch</b> block."},
+{t:"Async / await",q:"After <code>const data = await res.json();</code>, what is <code>data</code>?",o:["A Promise","The parsed value","undefined","Always a string"],a:1,e:"<b>await</b> unwraps the promise, so data is the <b>parsed value</b>, not a promise."},
+{t:"Async / await",q:"async/await is essentially syntactic sugar over…",o:["Callbacks","Promises","Loops","Classes"],a:1,e:"It's a cleaner way to write code built on <b>Promises</b>."},
+{t:"Async / await",q:"What does <code>f()</code> return?",code:"async function f() {\n  return 5;\n}",o:["5","A Promise resolving to 5","undefined","Error"],a:1,e:"Async functions wrap returns in a promise, so you get a <b>Promise that resolves to 5</b>."},
+
+// DOM
+{t:"DOM",q:"Which selects an element by its id?",o:['document.getElementById("x")','document.find("#x")','getElement("x")','document.id("x")'],a:0,e:"<b>document.getElementById(\"x\")</b> returns the element with that id."},
+{t:"DOM",q:"What does <code>querySelector(\".btn\")</code> select?",o:["All elements with class btn","The first element with class btn","The id btn","Nothing"],a:1,e:"<b>querySelector</b> returns only the <b>first</b> match. Use querySelectorAll for all of them."},
+{t:"DOM",q:"How do you attach a click handler in plain JavaScript?",o:["element.onClick(fn)",'element.addEventListener("click", fn)',"element.click(fn)",'element.on("click")'],a:1,e:"<b>addEventListener(\"click\", fn)</b> registers the handler."},
+{t:"DOM",q:"How do you read the text a user typed into an input?",o:["element.text","element.value","element.content","element.data"],a:1,e:"An input's current text lives in <b>element.value</b>."},
+{t:"DOM",q:"What is <code>event.preventDefault()</code> commonly used for?",o:["Deleting the event","Stopping default behavior (e.g. a form reload)","Logging the event","Refreshing the page"],a:1,e:"It <b>stops the browser's default action</b>, like a form submit reloading the page."},
+
+// Events
+{t:"Events",q:"In React, the click handler prop is written as…",o:["onclick","OnClick","onClick","click"],a:2,e:"React uses camelCase: <b>onClick</b>."},
+{t:"Events",q:"React passes which object to your event handlers?",o:["A state object","An event object","A props object","A ref object"],a:1,e:"Handlers receive a synthetic <b>event</b> object, similar to the native DOM event."},
+{t:"Events",q:"Which is the correct way to attach this handler to a button in React?",code:'const handleClick = () => console.log("hi");',o:['onClick="handleClick"',"onClick={handleClick}","onClick={handleClick()}","onclick=handleClick"],a:1,e:"Pass the function <b>reference</b>: <b>onClick={handleClick}</b> — no quotes, no parentheses."},
+{t:"Events",q:"What happens if you write <code>onClick={handleClick()}</code> instead of <code>{handleClick}</code>?",o:["It works correctly","It calls the function immediately on render","It never runs","It throws a syntax error"],a:1,e:"The parentheses <b>call it right away during render</b> and pass the return value, which is almost never what you want."},
+
+// Higher-order functions
+{t:"Higher-order fns",q:"A higher-order function is one that…",o:["Runs faster","Takes or returns a function","Is always async","Has no arguments"],a:1,e:"A higher-order function <b>takes a function as an argument and/or returns one</b>."},
+{t:"Higher-order fns",q:"<code>map</code>, <code>filter</code> and <code>reduce</code> are examples of…",o:["Loops","Higher-order functions","Objects","Promises"],a:1,e:"They accept a callback, which makes them <b>higher-order functions</b>."},
+{t:"Higher-order fns",q:"What does <code>double(5)</code> return?",code:"function multiplier(x) {\n  return y => x * y;\n}\nconst double = multiplier(2);",o:["2","5","10","Error"],a:2,e:"multiplier(2) returns a function that multiplies by 2, so double(5) is <b>10</b>."},
+{t:"Higher-order fns",q:"Treating functions as values means you can…",o:["Only call them","Store them in variables and pass them around","Never reuse them","Only declare them"],a:1,e:"Functions are first-class values — you can <b>store, pass, and return</b> them like any other value."},
+
+// Closures
+{t:"Closures",q:"A closure is a function that…",o:["Runs only once","Remembers variables from its outer scope","Has no scope","Is always async"],a:1,e:"A closure <b>keeps access to variables from the scope where it was created</b>, even after that scope has finished."},
+{t:"Closures",q:"What does the inner function keep access to?",code:"function counter() {\n  let c = 0;\n  return () => { c++; return c; };\n}",o:["Nothing","The variable c","The global object","The DOM"],a:1,e:"The returned function closes over <b>c</b> and remembers it between calls."},
+{t:"Closures",q:"What do two calls to <code>inc()</code> return?",code:"function counter() {\n  let c = 0;\n  return () => { c++; return c; };\n}\nconst inc = counter();",o:["1 then 1","1 then 2","0 then 0","Error"],a:1,e:"<b>c</b> persists between calls thanks to the closure: <b>1 then 2</b>."},
+{t:"Closures",q:"Closures are key to understanding React hooks like…",o:["useEffect and useCallback","Only useState","The DOM","None of them"],a:0,e:"Hooks like <b>useEffect</b> and <b>useCallback</b> capture values via closures — a common source of \"stale\" bugs."},
+];
+
+/* ---------------- STATE ---------------- */
+const TOTAL = QUESTIONS.length;          // 100
+const DURATION = 45 * 60;                // seconds
+let answers = new Array(TOTAL).fill(null);
+let current = 0;
+let timeLeft = DURATION;
+let timerId = null;
+let finished = false;
+
+/* ---------------- SCREENS ---------------- */
+const $ = id => document.getElementById(id);
+
+function startQuiz(){
+  $('start').style.display='none';
+  $('quiz').style.display='block';
+  window.scrollTo(0,0);
+  buildNavGrid();
+  render();
+  timerId = setInterval(tick, 1000);
+}
+
+function tick(){
+  timeLeft--;
+  updateTimer();
+  if(timeLeft <= 0){
+    clearInterval(timerId);
+    timeLeft = 0;
+    finish(true);
+  }
+}
+
+function updateTimer(){
+  const m = Math.floor(timeLeft/60);
+  const s = timeLeft%60;
+  $('timeText').textContent = m + ':' + String(s).padStart(2,'0');
+  const t = $('timer');
+  t.classList.remove('warn','danger');
+  if(timeLeft <= 60) t.classList.add('danger');
+  else if(timeLeft <= 300) t.classList.add('warn');
+}
+
+/* ---------------- RENDER QUESTION ---------------- */
+function render(){
+  const q = QUESTIONS[current];
+  $('qNow').textContent = current + 1;
+  $('qTopic').textContent = q.t;
+  $('qText').innerHTML = q.q;
+
+  const codeEl = $('qCode');
+  if(q.code){ codeEl.style.display='block'; codeEl.textContent = q.code; }
+  else { codeEl.style.display='none'; }
+
+  const keys = ['A','B','C','D','E'];
+  const opts = $('qOpts');
+  opts.innerHTML='';
+  q.o.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'opt' + (answers[current]===i ? ' sel':'');
+    b.innerHTML = '<span class="key">'+keys[i]+'</span><span class="txt">'+opt+'</span>';
+    b.onclick = () => choose(i);
+    opts.appendChild(b);
+  });
+
+  $('prevBtn').disabled = current === 0;
+  $('nextBtn').disabled = current === TOTAL - 1;
+
+  // progress bar with JS→React journey colour
+  const pct = ((current+1)/TOTAL)*100;
+  const fill = $('barFill');
+  const barW = fill.parentElement.clientWidth || 320;
+  fill.style.background = 'linear-gradient(90deg,#F7DF1E,#61DAFB)';
+  fill.style.backgroundSize = barW + 'px 100%';
+  fill.style.width = pct + '%';
+
+  updateNavGrid();
+  updateTimer();
+}
+
+function choose(i){
+  answers[current] = i;
+  render();
+  // auto-advance feel: small delay then next, but keep it optional/simple
+}
+
+function go(dir){
+  const next = current + dir;
+  if(next < 0 || next >= TOTAL) return;
+  current = next;
+  window.scrollTo(0,0);
+  render();
+}
+
+/* ---------------- NAVIGATOR GRID ---------------- */
+function buildNavGrid(){
+  const grid = $('navGrid');
+  grid.innerHTML='';
+  for(let i=0;i<TOTAL;i++){
+    const b=document.createElement('button');
+    b.textContent=i+1;
+    b.onclick=()=>{ current=i; window.scrollTo(0,0); render(); };
+    grid.appendChild(b);
+  }
+}
+function updateNavGrid(){
+  const btns = $('navGrid').children;
+  for(let i=0;i<btns.length;i++){
+    btns[i].className='';
+    if(answers[i]!==null) btns[i].classList.add('done');
+    if(i===current) btns[i].classList.add('current');
+  }
+}
+function toggleNav(){
+  const g=$('navGrid');
+  const open=g.classList.toggle('open');
+  $('navToggle').textContent = open ? 'Hide questions ▴' : 'Jump to question ▾';
+}
+
+/* ---------------- SUBMIT ---------------- */
+function confirmSubmit(){
+  const answered = answers.filter(a=>a!==null).length;
+  const left = TOTAL - answered;
+  const body = $('modalBody');
+  if(left>0){
+    body.innerHTML = 'You\'ve answered <b>'+answered+'</b> of '+TOTAL+'. '+
+      left+' question'+(left>1?'s are':' is')+' still blank and will be marked as skipped.';
+  } else {
+    body.innerHTML = 'All '+TOTAL+' questions answered. Ready to see your score?';
+  }
+  $('modal').classList.add('open');
+}
+function closeModal(){ $('modal').classList.remove('open'); }
+
+function finish(timedOut){
+  if(finished) return;
+  finished = true;
+  clearInterval(timerId);
+  $('modal').classList.remove('open');
+  $('quiz').style.display='none';
+  $('results').style.display='block';
+  window.scrollTo(0,0);
+  showResults(timedOut);
+}
+
+/* ---------------- RESULTS ---------------- */
+function showResults(timedOut){
+  let correct=0, wrong=0, skipped=0;
+  const topicStats={};
+
+  QUESTIONS.forEach((q,i)=>{
+    if(!topicStats[q.t]) topicStats[q.t]={c:0,total:0};
+    topicStats[q.t].total++;
+    if(answers[i]===null){ skipped++; }
+    else if(answers[i]===q.a){ correct++; topicStats[q.t].c++; }
+    else { wrong++; }
+  });
+
+  $('scoreNum').textContent = correct;
+  $('cCorrect').textContent = correct;
+  $('cWrong').textContent = wrong;
+  $('cSkip').textContent = skipped;
+
+  const pct = Math.round((correct/TOTAL)*100);
+  const usedSec = DURATION - timeLeft;
+  const um = Math.floor(usedSec/60), us = usedSec%60;
+  const timeStr = um + 'm ' + String(us).padStart(2,'0') + 's';
+
+  // verdict
+  let v, vColor;
+  if(pct>=85){ v='React-ready 🚀'; vColor='var(--react)'; }
+  else if(pct>=70){ v='Almost there'; vColor='var(--js)'; }
+  else if(pct>=50){ v='Solid start — keep going'; vColor='var(--js)'; }
+  else { v='Worth more practice first'; vColor='var(--muted)'; }
+  const vEl=$('verdict'); vEl.textContent=v; vEl.style.color=vColor;
+
+  $('scoreSub').innerHTML = pct + '% correct · ' + (timedOut?'time ran out':'submitted') + ' in ' + timeStr;
+
+  // ring
+  const circ = 2*Math.PI*40;
+  $('ringFill').style.strokeDashoffset = circ - (circ*pct/100);
+
+  // topic rows
+  const rows=$('topicRows'); rows.innerHTML='';
+  Object.keys(topicStats).forEach(t=>{
+    const s=topicStats[t];
+    const p=Math.round((s.c/s.total)*100);
+    const row=document.createElement('div');
+    row.className='trow';
+    row.innerHTML='<span class="tname">'+t+'</span>'+
+      '<span class="tbar"><span style="width:'+p+'%"></span></span>'+
+      '<span class="tscore">'+s.c+'/'+s.total+'</span>';
+    rows.appendChild(row);
+  });
+
+  // review
+  const keys=['A','B','C','D','E'];
+  const list=$('reviewList'); list.innerHTML='';
+  QUESTIONS.forEach((q,i)=>{
+    const userIdx=answers[i];
+    if(userIdx===null) return; // only review attempted questions
+    const gotIt = userIdx===q.a;
+    const item=document.createElement('div');
+    item.className='ritem';
+    let html='<div class="ri-head"><span class="ri-num">Q'+(i+1)+' · '+q.t+'</span></div>';
+    html+='<div class="rq">'+q.q+'</div>';
+    if(q.code) html+='<pre class="code">'+escapeHtml(q.code)+'</pre>';
+
+    if(gotIt){
+      html+='<div class="ans correct"><span class="mark">✓</span><span>Your answer: '+keys[userIdx]+'. '+q.o[userIdx]+'</span></div>';
+    } else {
+      html+='<div class="ans wrong"><span class="mark">✕</span><span>Your answer: '+keys[userIdx]+'. '+q.o[userIdx]+'</span></div>';
+      html+='<div class="ans correct"><span class="mark">✓</span><span>Correct: '+keys[q.a]+'. '+q.o[q.a]+'</span></div>';
+    }
+    html+='<div class="exp">'+q.e+'</div>';
+    item.innerHTML=html;
+    list.appendChild(item);
+  });
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// recompute bar width on resize so the journey gradient stays mapped
+window.addEventListener('resize', ()=>{ if($('quiz').style.display==='block') render(); });
+</script>
+</body>
+</html>
